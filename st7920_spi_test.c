@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <sys/ioctl.h>
+#include <linux/spi/spidev.h>
 #include "st7920_spi_test.h"
 
 #define PIN_RST 4 // GPIO23
@@ -23,10 +25,14 @@ int main(int argc, char **argv) {
     }
 
     // 540kHz speed - recomended by ST7920 spec
-    if ((lcd_fd = wiringPiSPISetupMode(0, 540000, 0x07)) < 0) {
+    //if ((lcd_fd = wiringPiSPISetupMode(0, 540000, 0x07)) < 0) {
+    if ((lcd_fd = wiringPiSPISetup(0, 540000)) < 0) {
         printf("Can't open the SPI bus\n");
         return EXIT_FAILURE;
     }
+    
+    char mode = 0x07;
+    ioctl(lcd_fd, SPI_IOC_WR_MODE, &mode);
 
     init_gpio();
     reset_lcd();
